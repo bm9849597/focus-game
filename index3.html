@@ -1,258 +1,157 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎯 لعبة التركيز بالصوت</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Focus Game</title>
   <style>
     body {
-      background: radial-gradient(circle at top, #0a0a0f, #000);
-      font-family: "Tajawal", sans-serif;
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 10px;
-    }
-    .card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 16px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-      padding: 20px;
-      width: 360px;
+      background-color: #111;
+      color: white;
+      font-family: Arial, sans-serif;
       text-align: center;
-      backdrop-filter: blur(8px);
-      overflow: hidden;
-      position: relative;
+      margin: 0;
+      padding: 0;
     }
-    .row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-    }
-    .btn {
-      background: rgba(255,255,255,0.08);
-      border: none;
-      border-radius: 10px;
-      color: white;
-      padding: 10px;
-      cursor: pointer;
-      flex: 1;
-      transition: all 0.3s;
-    }
-    .btn:hover { background: rgba(255,255,255,0.2); }
-    .btn.primary { background: #4caf50; }
-    .game-area {
-      height: 220px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.05), transparent);
-      border-radius: 10px;
-      overflow: hidden;
-      position: relative;
-    }
-    .dot {
-      position: absolute;
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
-      background: #ff4b5c;
-      color: white;
-      font-weight: bold;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      user-select: none;
-      touch-action: manipulation;
-    }
-    .dot:hover { transform: scale(1.2); }
-    .muted { color: #bbb; font-size: 14px; }
 
-    #endScreen {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.8);
+    h1 {
+      margin-top: 20px;
+      font-size: 2.5em;
+    }
+
+    #instructions {
+      color: #bbb;
+      margin: 10px auto 20px;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    #gameArea {
+      width: 300px;
+      height: 300px;
+      background-color: #222;
+      margin: 20px auto;
+      border: 2px solid white;
+      position: relative;
+      overflow: hidden;
       display: none;
+    }
+
+    .dot {
+      width: 30px;
+      height: 30px;
+      background-color: red;
+      border-radius: 50%;
+      position: absolute;
+      cursor: pointer;
+    }
+
+    #score {
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+
+    #startScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.95);
+      display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 15px;
-      border-radius: 16px;
-      backdrop-filter: blur(6px);
-      animation: fadeIn 0.5s ease-in-out;
     }
-    #endScreen h2 { margin: 0; font-size: 22px; color: #4caf50; }
-    #endScreen p { margin: 5px 0; font-size: 16px; }
-    @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
 
-    #soundToggle {
-      background: none;
+    #startScreen h1 {
+      font-size: 3em;
+      margin-bottom: 20px;
+    }
+
+    #startButton {
+      background-color: red;
+      color: white;
       border: none;
-      color: #fff;
-      font-size: 20px;
+      padding: 15px 30px;
+      font-size: 1.2em;
+      border-radius: 10px;
       cursor: pointer;
       transition: 0.3s;
     }
-    #soundToggle:hover { color: #4caf50; }
+
+    #startButton:hover {
+      background-color: #e60000;
+    }
+
+    #footer {
+      position: absolute;
+      bottom: 20px;
+      color: #999;
+      font-size: 0.9em;
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="row" style="justify-content:space-between">
-      <strong>🎯 لعبة التركيز</strong>
-      <button id="soundToggle" title="تشغيل/إيقاف الصوت">🔊</button>
-    </div>
 
-    <div id="instructions" style="margin-top:10px;background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;line-height:1.6;font-size:15px;">
-      <p>👋 <strong>كيفية اللعب:</strong><br>
-      عند الضغط على <strong>ابدأ اللعبة</strong>، ستظهر نقطة صغيرة 👇<br>
-      حاول النقر عليها بسرعة لتحصل على نقاط.<br>
-      كل نقرة صحيحة = <strong>+1 نقطة</strong> ✅.<br><br>
-      اجمع أكبر عدد من النقاط خلال <strong>30 ثانية</strong> ⏱️</p>
-      <button id="startGameBtn" class="btn primary" style="margin-top:10px;width:100%">ابدأ اللعبة</button>
-    </div>
-
-    <div id="gameContainer" style="display:none;margin-top:12px;">
-      <div class="row" style="justify-content:space-between">
-        <span>النقاط: <strong id="score">0</strong></span>
-        <span>الوقت: <strong id="timeLeft">30</strong> ثانية</span>
-      </div>
-      <div class="row" style="margin-top:6px;">🏆 أفضل نتيجة: <strong id="highScore">0</strong></div>
-      <div class="game-area" id="gameArea" style="margin-top:8px;"></div>
-      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-        <button id="restartBtn" class="btn">🔄 إعادة اللعب</button>
-        <button id="backToInstructions" class="btn">📖 التعليمات</button>
-      </div>
-    </div>
-
-    <div id="endScreen">
-      <h2>🎉 انتهت اللعبة!</h2>
-      <p>نتيجتك: <strong id="finalScore">0</strong></p>
-      <p>🏆 أفضل نتيجة: <strong id="finalHigh">0</strong></p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button id="tryAgain" class="btn primary">🔁 إعادة اللعب</button>
-        <button id="backMenu" class="btn">📘 العودة للقائمة</button>
-      </div>
-    </div>
+  <div id="startScreen">
+    <h1>🎯 Focus Game</h1>
+    <p>Test your focus and reflexes! Click the red dots before time runs out.</p>
+    <button id="startButton">Start Game</button>
+    <div id="footer">Designed by <b>Abdullah Mustafa</b> © 2025</div>
   </div>
 
-  <!-- 🎵 الأصوات -->
-  <audio id="clickSound" src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_066cb0e0f4.mp3?filename=click-21156.mp3"></audio>
-  <audio id="startSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_73b734e3b1.mp3?filename=game-start-6104.mp3"></audio>
-  <audio id="endSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_b61faecf7d.mp3?filename=game-over-arcade-6435.mp3"></audio>
+  <h1>🎯 Focus Game</h1>
+  <div id="instructions">
+    Click on the moving red dots before time runs out!<br>
+    Each click gives you +1 point. Stay focused and test your reflexes!
+  </div>
+
+  <div id="gameArea"></div>
+  <div id="score">Score: 0</div>
 
   <script>
-    const startBtn = document.getElementById('startGameBtn');
-    const restartBtn = document.getElementById('restartBtn');
-    const backBtn = document.getElementById('backToInstructions');
-    const instructions = document.getElementById('instructions');
-    const gameContainer = document.getElementById('gameContainer');
     const gameArea = document.getElementById('gameArea');
-    const scoreEl = document.getElementById('score');
-    const timeLeftEl = document.getElementById('timeLeft');
-    const highScoreEl = document.getElementById('highScore');
-    const endScreen = document.getElementById('endScreen');
-    const finalScore = document.getElementById('finalScore');
-    const finalHigh = document.getElementById('finalHigh');
-    const tryAgain = document.getElementById('tryAgain');
-    const backMenu = document.getElementById('backMenu');
-    const soundToggle = document.getElementById('soundToggle');
+    const scoreDisplay = document.getElementById('score');
+    const startScreen = document.getElementById('startScreen');
+    const startButton = document.getElementById('startButton');
 
-    const clickSound = document.getElementById('clickSound');
-    const startSound = document.getElementById('startSound');
-    const endSound = document.getElementById('endSound');
+    let score = 0;
 
-    let score = 0, timeLeft = 30, timer, moveTimer, dot;
-    let highScore = localStorage.getItem('focusHighScore') || 0;
-    let soundOn = true;
-
-    highScoreEl.textContent = highScore;
-
-    soundToggle.onclick = () => {
-      soundOn = !soundOn;
-      soundToggle.textContent = soundOn ? '🔊' : '🔇';
-    };
-
-    function playSound(audio) {
-      if (soundOn) {
-        audio.currentTime = 0;
-        audio.play();
-      }
+    function randomPosition() {
+      const x = Math.random() * (gameArea.clientWidth - 30);
+      const y = Math.random() * (gameArea.clientHeight - 30);
+      return { x, y };
     }
 
-    startBtn.onclick = () => { playSound(startSound); startGame(); };
-    restartBtn.onclick = () => { playSound(startSound); resetGame(); startGame(); };
-    backBtn.onclick = () => { stopGame(); gameContainer.style.display = 'none'; instructions.style.display = 'block'; };
-    tryAgain.onclick = () => { endScreen.style.display = 'none'; playSound(startSound); resetGame(); startGame(); };
-    backMenu.onclick = () => { endScreen.style.display = 'none'; gameContainer.style.display = 'none'; instructions.style.display = 'block'; };
-
-    function startGame() {
-      instructions.style.display = 'none';
-      gameContainer.style.display = 'block';
-      score = 0; timeLeft = 30;
-      scoreEl.textContent = score; timeLeftEl.textContent = timeLeft;
-      spawnDot();
-      timer = setInterval(() => {
-        timeLeft--; timeLeftEl.textContent = timeLeft;
-        if (timeLeft <= 0) endGame();
-      }, 1000);
-      moveTimer = setInterval(moveDot, 900);
-    }
-
-    function stopGame() {
-      clearInterval(timer); clearInterval(moveTimer);
-      if (dot) dot.remove();
-    }
-
-    function resetGame() {
-      stopGame();
-      score = 0; timeLeft = 30;
-      scoreEl.textContent = 0; timeLeftEl.textContent = 30;
-    }
-
-    function endGame() {
-      stopGame();
-      playSound(endSound);
-      if (score > highScore) {
-        highScore = score;
-        localStorage.setItem('focusHighScore', highScore);
-      }
-      finalScore.textContent = score;
-      finalHigh.textContent = highScore;
-      highScoreEl.textContent = highScore;
-      endScreen.style.display = 'flex';
-    }
-
-    function spawnDot() {
-      if (dot) dot.remove();
-      dot = document.createElement('div');
-      dot.className = 'dot';
-      dot.textContent = '+';
+    function createDot() {
+      const dot = document.createElement('div');
+      dot.classList.add('dot');
+      const { x, y } = randomPosition();
+      dot.style.left = x + 'px';
+      dot.style.top = y + 'px';
       gameArea.appendChild(dot);
-      positionDot();
 
-      dot.onclick = () => {
+      dot.addEventListener('click', () => {
         score++;
-        playSound(clickSound);
-        scoreEl.textContent = score;
-        dot.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.4)' }, { transform: 'scale(0)' }], { duration: 200 });
-        setTimeout(positionDot, 150);
-      };
+        scoreDisplay.textContent = "Score: " + score;
+        dot.remove();
+        createDot();
+      });
+
+      setTimeout(() => {
+        if (document.body.contains(dot)) {
+          dot.remove();
+          createDot();
+        }
+      }, 1000);
     }
 
-    function positionDot() {
-      const area = gameArea.getBoundingClientRect();
-      const pad = 20;
-      const x = Math.random() * (area.width - 2 * pad) + pad;
-      const y = Math.random() * (area.height - 2 * pad) + pad;
-      dot.style.left = `${x}px`;
-      dot.style.top = `${y}px`;
-    }
-
-    function moveDot() { if (dot) positionDot(); }
+    startButton.addEventListener('click', () => {
+      startScreen.style.display = 'none';
+      gameArea.style.display = 'block';
+      createDot();
+    });
   </script>
 </body>
-</html> 
+</html>

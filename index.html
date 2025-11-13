@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus Game</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      margin: 20px auto;
+      background: #222;
+      border: 2px solid #fff;
+    }
+    #score {
+      font-size: 20px;
+      margin-top: 10px;
+    }
+    #instructions {
+      font-size: 16px;
+      margin: 15px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 Focus Game</h1>
+  <div id="instructions">
+    Click on the moving red dots before time runs out!<br>
+    Each successful click gives you +1 point.<br>
+    Stay focused and test your reflexes!
+  </div>
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
+  <div id="score">Score: 0</div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let score = 0;
+
+    const target = { x: 200, y: 200, r: 20, dx: 2, dy: 2 };
+
+    canvas.addEventListener('click', e => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const dist = Math.sqrt((x - target.x) ** 2 + (y - target.y) ** 2);
+      if (dist < target.r) {
+        score++;
+        document.getElementById('score').textContent = "Score: " + score;
+        moveTarget();
+      }
+    });
+
+    function moveTarget() {
+      target.x = Math.random() * (canvas.width - 2 * target.r) + target.r;
+      target.y = Math.random() * (canvas.height - 2 * target.r) + target.r;
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      ctx.arc(target.x, target.y, target.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'red';
+      ctx.fill();
+      target.x += target.dx;
+      target.y += target.dy;
+      if (target.x < target.r || target.x > canvas.width - target.r) target.dx *= -1;
+      if (target.y < target.r || target.y > canvas.height - target.r) target.dy *= -1;
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
